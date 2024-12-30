@@ -17,13 +17,12 @@ export class Admin {
   password: string;
 
   @ManyToMany(() => Role, (role) => role.admins)
-  @JoinTable() 
+  @JoinTable()
   roles: Role[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Column({ type: 'timestamp',  nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date;
-
 }

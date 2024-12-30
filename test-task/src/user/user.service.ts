@@ -1,7 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserInfoDto, UpdateUserInfoDto } from 'src/user/dto/user-info.dto';
 import { User } from './user.entity';
 import * as bcrypt from 'bcryptjs';
 import { Admin } from './admin.entity';
@@ -31,12 +30,9 @@ export class UserService {
 
   async findAll(user: any) {
     try {
-      if (user !== 'Super Admin') {
-        throw new NotFoundException('Access denied: Only Super Admins can access this resource.');
-      }
       const users = await this.adminsRepository.find();
       if (!users.length) {
-        throw new NotFoundException('No users found');
+        return new NotFoundException('No users found');
       }
       return users;
     } catch (error) {
@@ -45,14 +41,11 @@ export class UserService {
     }
   }
 
-  async findById( id: string,superAdmin: any) {
+  async findById(id: string, superAdmin: any) {
     try {
-      if (superAdmin !== 'Super Admin') {
-        throw new NotFoundException('Access denied: Only Super Admins can access this resource.');
-      }
       const user = await this.adminsRepository.findOne({ where: { id } });
       if (!user) {
-        throw new NotFoundException(`User with ID ${id} not found`);
+        return new NotFoundException(`User with ID ${id} not found`);
       }
       return user;
     } catch (error) {
@@ -63,39 +56,33 @@ export class UserService {
 
   async create(createUserDto: CreateSuperAdminDto, superAdmin: any) {
     try {
-      if (superAdmin !== 'Super Admin') {
-        throw new NotFoundException('Access denied: Only Super Admins can access this resource.');
-      }
-  
       if (!createUserDto.password || !createUserDto.email) {
         throw new BadRequestException('Missing required fields: email or password');
       }
-  
+
       const emailExists = await this.adminsRepository.findOneBy({ email: createUserDto.email });
       if (emailExists) {
         throw new BadRequestException('Email already exists');
       }
-  
+
       if (createUserDto.username) {
         const usernameExists = await this.adminsRepository.findOneBy({ username: createUserDto.username });
         if (usernameExists) {
           throw new BadRequestException('Username already exists');
         }
       }
-  
+
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-  
       const user = this.adminsRepository.create({
         ...createUserDto,
         password: hashedPassword,
       });
-  
+
       const savedUser = await this.adminsRepository.save(user);
-  
       return { message: 'User created successfully', data: savedUser };
     } catch (error) {
       console.error('Error creating user:', error);
-      
+
       if (error instanceof BadRequestException) {
         throw error;
       } else {
@@ -103,41 +90,38 @@ export class UserService {
       }
     }
   }
-  
+
 
   async update(id: any, updateUserDto: UpdateUserDto, superAdmin: any) {
     try {
-      if (superAdmin !== 'Super Admin') {
-        throw new NotFoundException('Access denied: Only Super Admins can access this resource.');
-      }
-  
+
       const user = await this.adminsRepository.findOne({ where: { id } });
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
-        const { username, email } = updateUserDto;
-  
+      const { username, email } = updateUserDto;
+
       if (username) {
         const existingUserWithUsername = await this.adminsRepository.findOne({ where: { username } });
         if (existingUserWithUsername && existingUserWithUsername.id !== id) {
           throw new BadRequestException('Username already exists');
         }
       }
-  
+
       if (email) {
         const existingUserWithEmail = await this.adminsRepository.findOne({ where: { email } });
         if (existingUserWithEmail && existingUserWithEmail.id !== id) {
           throw new BadRequestException('Email already exists');
         }
       }
-  
-      const updatedUser = Object.assign(user, updateUserDto, {updatedAt: new Date()} );
+
+      const updatedUser = Object.assign(user, updateUserDto, { updatedAt: new Date() });
       const savedUser = await this.adminsRepository.save(updatedUser);
-  
+
       return { message: 'User updated successfully', data: savedUser };
     } catch (error) {
       console.error(`Error updating user with ID ${id}:`, error);
-  
+
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
       } else {
@@ -145,13 +129,10 @@ export class UserService {
       }
     }
   }
-  
+
 
   async remove(id: string, superAdmin: any) {
     try {
-      if (superAdmin !== 'Super Admin') {
-        throw new NotFoundException('Access denied: Only Super Admins can access this resource.');
-      }
       const result = await this.adminsRepository.delete(id);
 
       if (result.affected === 0) {
@@ -171,9 +152,6 @@ export class UserService {
 
   async assignRole(userId: any, roleId: string, superAdmin: any): Promise<Admin> {
     try {
-      if (superAdmin !== 'Super Admin') {
-        throw new NotFoundException('Access denied: Only Super Admins can access this resource.');
-      }
       const user = await this.adminsRepository.findOne({
         where: { id: userId },
         relations: ['roles'],

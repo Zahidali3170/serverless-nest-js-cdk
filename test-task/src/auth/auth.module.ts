@@ -26,6 +26,6 @@ import { CustomerModule } from 'src/customer/customer.module';
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
-  exports: [JwtStrategy],  // Export JwtStrategy if used in other modules
+  exports: [JwtStrategy],
 })
 export class AuthModule {}

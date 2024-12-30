@@ -1,17 +1,10 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Delete, Req, Put, Patch } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/roles.guard';
-import { Roles } from 'src/auth/role.decorator';
 import { UserService } from './user.service';
 
-import { CreateUserInfoDto, UpdateUserInfoDto } from 'src/user/dto/user-info.dto';
-import { Request } from 'express';
-import { SuperRole } from './enum/role.enum';
-import { CreateUserDto } from './dto/create-user.dto';
 import { CreateSuperAdminDto, UpdateUserDto } from './dto/admin.dto';
 import { AllRolesGuard } from 'src/auth/all-roles.guard';
-// import { PermissionGuard } from 'src/auth/permission.guard';
 
 @ApiTags('Super Admin')
 @Controller('users')
@@ -20,7 +13,6 @@ export class UserController {
 
 
   @Get()
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of all users' })
@@ -32,7 +24,6 @@ export class UserController {
   }
 
   @Post()
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Create a new users' })
   @ApiBody({ type: CreateSuperAdminDto })
@@ -54,7 +45,6 @@ export class UserController {
   }
 
   @Put(':id')
-  // @Roles(Role.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Update a user by ID' })
   @ApiBody({ type: UpdateUserDto })
@@ -66,7 +56,6 @@ export class UserController {
     return this.userService.update(id, updateUserDto, req.user.role);
   }
   @Delete(':id')
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Delete a user by ID' })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
@@ -81,7 +70,6 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'users or Role not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiBearerAuth()
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @Patch(':userId/role/:roleId')
   async assignRole(

@@ -5,6 +5,7 @@ export class RoleDto {
   @ApiProperty({
     description: 'Name of the role',
     example: 'Admin',
+    required:true
   })
   @IsString()
   name: string;
@@ -30,7 +31,7 @@ export class RoleDto {
     example: true,
   })
   @IsBoolean()
-  Readpermission: boolean;
+  readPermission: boolean;
 
   @ApiProperty({
     description: 'Specifies if the role has create permissions',
@@ -56,13 +57,13 @@ export class RoleDto {
 }
 
 export class UpdateRoleDto {
-  @ApiProperty({
-    description: 'Name of the role',
-    example: 'Admin',
-  })
-  @IsString()
-  @IsOptional()
-  name: string;
+  // @ApiProperty({
+  //   description: 'Name of the role',
+  //   example: 'Admin',
+  // })
+  // @IsString()
+  // @IsOptional()
+  // name: string;
 
   @ApiProperty({
     description: 'Description of the role permissions',

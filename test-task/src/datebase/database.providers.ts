@@ -18,6 +18,8 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
     url: databaseUrl,
     entities: [User, Role, Permission, Admin, Customer],
     synchronize: true,
+    // migrations: ['src/migrations/*.ts'],
+    // migrationsTableName: 'migrations',
     ssl: databaseUrl.includes('localhost') ? false : { rejectUnauthorized: false },
     // logging: true,
   };

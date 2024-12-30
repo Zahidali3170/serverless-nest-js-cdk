@@ -69,7 +69,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid username or password');
       }
 
-      const payload = { username: user.username, sub: user.id, role: user.role, };
+      const payload = { username: user.username };
       return this.jwtService.sign(payload);
     }
 
@@ -91,8 +91,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid username or password');
       }
 
-      const payload = { username: admin.username, sub: admin.id, role: admin.roles };
-      console.log({payload})
+      const payload = { username: admin.username };
       return this.jwtService.sign(payload);
     }
 

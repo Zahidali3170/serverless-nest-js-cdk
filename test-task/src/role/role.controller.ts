@@ -1,20 +1,16 @@
 import { Controller, Post, Get, Body, UseGuards, Delete, Param, Put, Req } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';  // Import Swagger decorators
-import { Roles } from 'src/auth/role.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { SuperRole } from 'src/user/enum/role.enum';
-import { RolesGuard } from 'src/auth/roles.guard';
 import { RoleDto, UpdateRoleDto } from './dto/assign-role.dto';
 import { AllRolesGuard } from 'src/auth/all-roles.guard';
 
-@ApiTags('Super Admin -> roles') 
+@ApiTags('Super Admin/roles') 
 @Controller('roles')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
 
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Create a new role' })  
   @ApiResponse({ status: 201, description: 'Role created successfully' }) 
@@ -25,7 +21,6 @@ export class RoleController {
   async create(@Body() roleDto: RoleDto ,@Req() req) {
     return this.roleService.create(roleDto,req.user.role);  
   }
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Get all roles' })  
   @ApiResponse({ status: 200, description: 'List of all roles' })  
@@ -37,7 +32,6 @@ export class RoleController {
   }
 
   @Delete(':id')
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Delete a Role by ID' })
   @ApiResponse({ status: 200, description: ' deleted Role' })
@@ -47,7 +41,6 @@ export class RoleController {
     return this.roleService.removeRole(id,req.user.role);
   }
 
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Update a role by ID' })
   @ApiResponse({ status: 200, description: 'Role updated successfully' })

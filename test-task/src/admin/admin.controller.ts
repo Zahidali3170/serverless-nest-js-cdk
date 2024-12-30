@@ -41,7 +41,6 @@ export class AdminController {
   })
   @ApiBearerAuth()
   async getUserProfile(@Req() req){
-    console.log("********* user5 profile", req.user.id)
     return this.adminService.getUserProfile(req.user.id);
   }
 }

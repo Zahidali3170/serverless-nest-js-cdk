@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Admin } from 'src/user/admin.entity';
@@ -29,9 +29,6 @@ export class AdminService {
   }
   async findAll(superAdmin:any): Promise<any> {
     try {
-      if (superAdmin!=='Super Admin') {
-        throw new NotFoundException('Access denied: Only Super Admins can access this resource.');
-      }
       const loggedInUser = await this.adminRepository.find({
         relations: ['roles'], 
       });
@@ -54,7 +51,7 @@ export class AdminService {
       });
 
       if (!user) {
-        throw new InternalServerErrorException('User profile not found');
+        throw new NotFoundException('User profile not found');
       }
 
       const userProfile = {

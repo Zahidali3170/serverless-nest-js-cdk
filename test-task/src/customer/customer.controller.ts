@@ -1,40 +1,21 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Delete, Req, Put, Patch, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Delete, Req, Put, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiBody, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
-
-import { Request } from 'express';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 import { CustomerService } from './customer.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Permissions, Roles } from 'src/auth/role.decorator';
-import { RolesGuard } from 'src/auth/roles.guard';
-// import { PermissionGuard } from 'src/auth/permission.guard';
-import { SuperRole } from 'src/user/enum/role.enum';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Role } from 'src/role/role.entity';
-import { AuthGuard } from '@nestjs/passport';
-import { RoleService } from 'src/role/role.service';
 import { AllRolesGuard } from 'src/auth/all-roles.guard';
-export  const rolesArrays = ['Admin', 'Editor', 'superman'];
-import {RoleType} from '../auth/role.decorator'
+export const rolesArrays = ['Admin', 'Editor', 'superman'];
+import { Customer } from './customer.entity';
 
 @ApiTags('Customer')
 @Controller('customer')
 export class CustomerController {
 
-  constructor(private readonly customerervice: CustomerService, 
-    private readonly roleService: RoleService
+  constructor(private readonly customerervice: CustomerService,
   ) { }
 
-  async getDynamicRoles(){
-    console.log(this.roleService.getDynamicRoles())
-    return this.roleService.getDynamicRoles(); 
-  }
-  //
-  //[ 'Admin', 'Admin', 'Editor', 'admin', 'superman' ]
-  // private getDynamicRoles = () => this.roleService!.getDynamicRoles();
- 
-  @Get()
-  // @Roles(SuperRole.SUPER_ADMIN)
+  @Get('all-customer')
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Get all customer' })
   @ApiResponse({ status: 200, description: 'List of all customer' })
@@ -45,17 +26,17 @@ export class CustomerController {
     console.log(customerId.user.role)
     return this.customerervice.findAll(customerId);
   }
-  @Get('profile')
+  @Get('customer-profile')
   @ApiOperation({ summary: 'Customer profile' })
   @ApiResponse({ status: 200, description: 'Customer profile retrieved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  async getCustomerProfile(@Req() req) {
+  async getCustomerProfile(@Req() req): Promise<Customer> {
     const customerId: any = req;
     return this.customerervice.findProfile(customerId.user.id);
   }
-  
+
   @Post()
   @ApiOperation({ summary: 'Create a new customer with image upload' })
   @ApiConsumes('multipart/form-data')
@@ -73,7 +54,6 @@ export class CustomerController {
   })
   @UseInterceptors(FileInterceptor('image', {
     fileFilter: (req, file, cb) => {
-      // Only allow certain image types
       if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
         return cb(new BadRequestException('Only image files allowed'), false);
       }
@@ -92,7 +72,6 @@ export class CustomerController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image', {
     fileFilter: (req, file, cb) => {
-      // Only allow certain image types
       if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
         return cb(new BadRequestException('Only image files allowed'), false);
       }
@@ -107,22 +86,19 @@ export class CustomerController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const customerId: any = req;
-    console.log("****************",customerId.user)
-
     return this.customerervice.update(customerId.user.id, updateUserDto, file);
   }
 
   @Get(':id')
-  // @Roles(SuperRole.SUPER_ADMIN, 'Admin','Editor')
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Get a Customer by ID' })
   @ApiResponse({ status: 200, description: 'Customer found successfully' })
   @ApiResponse({ status: 404, description: 'Customer not found' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  getCustomerById(@Param('id') id: string,@Req() req) {
+  getCustomerById(@Param('id') id: string, @Req() req) {
     const customerId: any = req;
-    return this.customerervice.findById(id,customerId);
+    return this.customerervice.findById(id, customerId);
   }
 
   @Delete(':id')
@@ -130,11 +106,11 @@ export class CustomerController {
   @ApiResponse({ status: 200, description: 'Customer deleted successfully' })
   @ApiResponse({ status: 404, description: 'Customer not found' })
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard,AllRolesGuard)
-  deleteCustomer(@Req() req,@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard, AllRolesGuard)
+  deleteCustomer(@Body() @Req() req, @Param('id') id: string) {
     const createdBy: any = req;
     console.log(createdBy.user)
-    return this.customerervice.remove(id,createdBy);
+    return this.customerervice.remove(id, createdBy);
   }
 }
 

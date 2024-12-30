@@ -11,8 +11,7 @@ export class Role {
 
   @Column({nullable: true})
   resourceTypes: string;
-
-
+  
   @Column({ type: 'text', nullable: true })
   permissionDescription?: string;
 
