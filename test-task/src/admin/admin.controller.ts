@@ -9,7 +9,7 @@ import { AllRolesGuard } from 'src/auth/all-roles.guard';
 export class AdminController {
   constructor(private readonly adminService: AdminService) { }
 
-  @Get()
+  @Get('all-roles')
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Get all assign roles only Super admin' })
   @ApiResponse({ status: 200, description: 'List of all roles' })
@@ -19,7 +19,7 @@ export class AdminController {
     return this.adminService.findAll(req.user.role);
   }
 
-  @Get('profile')
+  @Get('user-profile')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({

@@ -12,7 +12,7 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
 
-  @Get()
+  @Get('all-users')
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of all users' })
@@ -23,7 +23,7 @@ export class UserController {
     return this.userService.findAll(req.user.role);
   }
 
-  @Post()
+  @Post('create-user')
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Create a new users' })
   @ApiBody({ type: CreateSuperAdminDto })
@@ -34,7 +34,7 @@ export class UserController {
     return this.userService.create(createUserDto, req.user.role);
   }
 
-  @Get(':id')
+  @Get('user/:id')
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Get a users by ID' })
   @ApiResponse({ status: 200, description: 'User found successfully' })
@@ -44,7 +44,7 @@ export class UserController {
     return this.userService.findById(id, req.user.role);
   }
 
-  @Put(':id')
+  @Put('user/:id')
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Update a user by ID' })
   @ApiBody({ type: UpdateUserDto })
@@ -55,7 +55,7 @@ export class UserController {
     const createdBy: any = req;
     return this.userService.update(id, updateUserDto, req.user.role);
   }
-  @Delete(':id')
+  @Delete('user/:id')
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Delete a user by ID' })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
