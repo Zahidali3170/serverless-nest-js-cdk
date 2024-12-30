@@ -15,7 +15,7 @@ export class RoleDto {
     example: 'Admin',
   })
   @IsString({ each: true })
-  resourceTypes?: string[];
+  resourceTypes?: string[] | string;
 
   @ApiProperty({
     description: 'Description of the role permissions',
@@ -70,7 +70,7 @@ export class UpdateRoleDto {
   })
   @IsString({ each: true })
   @IsOptional()
-  resourceTypes?: string[];
+  resourceTypes?: string[] | string;
 
   @ApiProperty({
     description: 'Description of the role permissions',

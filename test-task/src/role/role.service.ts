@@ -24,13 +24,22 @@ export class RoleService {
       if (existingRole) {
         throw new ConflictException('Role with this name already exists');
       }
+
+      if (createRoleDto.resourceTypes) {
+        if (typeof createRoleDto.resourceTypes === 'string') {
+          createRoleDto.resourceTypes = [createRoleDto.resourceTypes];
+        } else if (!Array.isArray(createRoleDto.resourceTypes)) {
+          throw new InternalServerErrorException('Invalid format for resourceTypes, expected string or array of strings');
+        }
+      }
       const role = this.roleRepository.create(createRoleDto);
       return await this.roleRepository.save(role);
+
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof ConflictException) {
         throw error;
       } else {
-        console.error('Error creating role:', error);
+        console.error('Error creating role:', error.message);
         throw new InternalServerErrorException('An unexpected error occurred while creating the role');
       }
     }
@@ -116,12 +125,24 @@ export class RoleService {
           HttpStatus.NOT_FOUND,
         );
       }
+      if (updateRoleDto.resourceTypes) {
+        if (typeof updateRoleDto.resourceTypes === 'string') {
+          updateRoleDto.resourceTypes = [updateRoleDto.resourceTypes];
+        } else if (!Array.isArray(updateRoleDto.resourceTypes)) {
+          throw new HttpException(
+            {
+              statusCode: HttpStatus.BAD_REQUEST,
+              message: 'Invalid format for resourceTypes, expected string or array of strings',
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
       const updatedRole = Object.assign(role, updateRoleDto);
       return await this.roleRepository.save(updatedRole);
 
     } catch (error) {
       console.error('Error updating role:', error.message);
-
       throw new HttpException(
         {
           statusCode: HttpStatus.BAD_REQUEST,

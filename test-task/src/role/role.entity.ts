@@ -10,7 +10,7 @@ export class Role {
   name: string;
 
   @Column('text', { array: true, default: [] })
-  resourceTypes: string[];
+  resourceTypes: string[] | string;
   
   @Column({ type: 'text', nullable: true })
   permissionDescription?: string;
