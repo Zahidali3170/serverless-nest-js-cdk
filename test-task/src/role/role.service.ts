@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus, ForbiddenException, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, ForbiddenException, NotFoundException, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './role.entity';
@@ -16,15 +16,24 @@ export class RoleService {
   ) { }
 
   async create(createRoleDto: RoleDto, superAdmin: any): Promise<Role> {
-    if (!createRoleDto?.name) {
-      throw new NotFoundException('Role name is required');
+    try {
+      if (!createRoleDto?.name) {
+        throw new NotFoundException('Role name is required');
+      }
+      const existingRole = await this.roleRepository.findOne({ where: { name: createRoleDto.name } });
+      if (existingRole) {
+        throw new ConflictException('Role with this name already exists');
+      }
+      const role = this.roleRepository.create(createRoleDto);
+      return await this.roleRepository.save(role);
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof ConflictException) {
+        throw error;
+      } else {
+        console.error('Error creating role:', error);
+        throw new InternalServerErrorException('An unexpected error occurred while creating the role');
+      }
     }
-    const existingRole = await this.roleRepository.findOne({ where: { name: createRoleDto.name } });
-    if (existingRole) {
-      throw new ConflictException('Role with this name already exists');
-    }
-    const role = this.roleRepository.create(createRoleDto);
-    return this.roleRepository.save(role);
   }
 
   async findAll(superAdmin: any) {
@@ -124,8 +133,14 @@ export class RoleService {
     }
   }
 
-  async getDynamicRoles() {
-    const roles = await this.roleRepository.find();
-    return roles.map(role => role.name);
+  async getDynamicRoles(): Promise<string[]> {
+    try {
+      const roles = await this.roleRepository.find();
+      return roles.map(role => role.name);
+    } catch (error) {
+      console.error('Error fetching dynamic roles:', error);
+      throw new InternalServerErrorException('An unexpected error occurred while fetching dynamic roles');
+    }
   }
+
 }

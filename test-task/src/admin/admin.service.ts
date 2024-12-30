@@ -14,6 +14,7 @@ export class AdminService {
     private readonly roleService: RoleService,
 
   ) {}
+
   async getPermissionsByUser(userId: string): Promise<string[]> {
     const user = await this.getUserById(userId);
     const roles = user.roles;
@@ -24,6 +25,7 @@ export class AdminService {
 
     return [...new Set(permissions.flat())];
   }
+
   async getUserById(userId: string) {
     return await this.adminRepository.findOne({ where: { id:userId } });
   }
@@ -36,13 +38,13 @@ export class AdminService {
       if (!loggedInUser) {
         throw new NotFoundException('Logged-in user not found');
       }
-
       return loggedInUser;
     } catch (error) {
       console.error('Error fetching logged-in user with roles :', error);
       throw new InternalServerErrorException('Access denied: Only Super Admins can access this resource.');
     }
   }
+
   async getUserProfile(userId: string): Promise<any> {
     try {
       const user = await this.adminRepository.findOne({
@@ -53,7 +55,6 @@ export class AdminService {
       if (!user) {
         throw new NotFoundException('User profile not found');
       }
-
       const userProfile = {
         id: user.id,
         name: user.username, 
@@ -62,7 +63,6 @@ export class AdminService {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       };
-
       return userProfile;
     } catch (error) {
       console.error('Error fetching user profile Access denied :', error);

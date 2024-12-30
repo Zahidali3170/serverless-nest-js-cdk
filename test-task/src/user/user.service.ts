@@ -94,7 +94,6 @@ export class UserService {
 
   async update(id: any, updateUserDto: UpdateUserDto, superAdmin: any) {
     try {
-
       const user = await this.adminsRepository.findOne({ where: { id } });
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
@@ -160,7 +159,7 @@ export class UserService {
       if (!user) {
         throw new NotFoundException(`User with ID ${userId} not found`);
       }
-
+      
       const role = await this.roleRepository.findOne({ where: { roleId } });
       if (!role) {
         throw new NotFoundException(`Role with ID ${roleId} not found`);
@@ -169,7 +168,6 @@ export class UserService {
       if (!user.roles) {
         user.roles = [];
       }
-
       user.roles.push(role);
       const userRole = await this.adminsRepository.save(user);
 

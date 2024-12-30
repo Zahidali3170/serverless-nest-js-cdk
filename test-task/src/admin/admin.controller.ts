@@ -1,24 +1,15 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
-
+import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
-import { RoleDto } from 'src/role/dto/assign-role.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/roles.guard';
-import { SuperRole } from 'src/user/enum/role.enum';
-import { Roles } from 'src/auth/role.decorator';
 import { AllRolesGuard } from 'src/auth/all-roles.guard';
-;
-
 
 @ApiTags('Users')
 @Controller('user')
 export class AdminController {
   constructor(private readonly adminService: AdminService) { }
 
-
   @Get()
-  // @Roles(SuperRole.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Get all assign roles only Super admin' })
   @ApiResponse({ status: 200, description: 'List of all roles' })

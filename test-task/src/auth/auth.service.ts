@@ -63,38 +63,53 @@ export class AuthService {
     }
 
     const user = await this.userRepository.findOne({ where: { username } });
-    if (user) {
-      const passwordMatches = await bcrypt.compare(password, user.password);
-      if (!passwordMatches) {
-        throw new UnauthorizedException('Invalid username or password');
-      }
-
-      const payload = { username: user.username };
-      return this.jwtService.sign(payload);
-    }
-
     const customer = await this.customerRepository.findOne({ where: { username } });
-    if (customer) {
-      const passwordMatches = await bcrypt.compare(password, customer.password);
-      if (!passwordMatches) {
-        throw new UnauthorizedException('Invalid username or password');
-      }
-
-      const payload = { username: customer.username, sub: customer.id, };
-      return this.jwtService.sign(payload);
-    }
-
     const admin = await this.adminRepository.findOne({ where: { username }, relations:['roles'] });
-    if (admin) {
-      const passwordMatches = await bcrypt.compare(password, admin.password);
-      if (!passwordMatches) {
-        throw new UnauthorizedException('Invalid username or password');
+    const entities = [user, customer, admin];
+    for (const entity of entities) {
+      if (entity) {
+        const passwordMatches = await bcrypt.compare(password, entity.password);
+        if (!passwordMatches) {
+          throw new UnauthorizedException('Invalid username or password');
+        }
+        
+        const payload = { username: entity.username, sub: entity.id };
+        return this.jwtService.sign(payload);
       }
-
-      const payload = { username: admin.username };
-      return this.jwtService.sign(payload);
     }
-
+    
     throw new UnauthorizedException('Invalid username or password');
+    
+    // if (user) {
+    //   const passwordMatches = await bcrypt.compare(password, user.password);
+    //   if (!passwordMatches) {
+    //     throw new UnauthorizedException('Invalid username or password');
+    //   }
+
+    //   const payload = { username: user.username, sub: user.id, role: user.role, };
+    //   return this.jwtService.sign(payload);
+    // }
+
+    // if (customer) {
+    //   const passwordMatches = await bcrypt.compare(password, customer.password);
+    //   if (!passwordMatches) {
+    //     throw new UnauthorizedException('Invalid username or password');
+    //   }
+
+    //   const payload = { username: customer.username, sub: customer.id, };
+    //   return this.jwtService.sign(payload);
+    // }
+
+    // if (admin) {
+    //   const passwordMatches = await bcrypt.compare(password, admin.password);
+    //   if (!passwordMatches) {
+    //     throw new UnauthorizedException('Invalid username or password');
+    //   }
+
+    //   const payload = { username: admin.username };
+    //   return this.jwtService.sign(payload);
+    // }
+
+    // throw new UnauthorizedException('Invalid username or password');
   }
 }

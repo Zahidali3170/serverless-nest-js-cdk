@@ -25,6 +25,6 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
     const token = await this.authService.login(loginDto);
-    return { access_token: token }
+    return { Access_token: token }
 }
 }

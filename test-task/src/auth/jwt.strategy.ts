@@ -24,7 +24,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any): Promise<User | Customer| Admin| { error: string }> {
     const { sub } = payload;
-    console.log({sub})
     const user = await this.userRepository.findOne({ where: { id: sub } }); 
     const customer = await this.customerRepository.findOne({ where: { id: sub } });
     const admin = await this.adminRepository.findOne({ where: { id: sub },relations: ['roles'] });

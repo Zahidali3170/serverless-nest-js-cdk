@@ -124,11 +124,11 @@ export class CustomerService {
       };
     } catch (error) {
       console.error('Error creating customer:', error);
-  
+
       if (error instanceof ConflictException) {
         throw error;
       }
-  
+
       throw new InternalServerErrorException({
         statusCode: 500,
         message: 'Unexpected server error occurred',
@@ -140,7 +140,7 @@ export class CustomerService {
   async update(id: string, updateUserDto: UpdateCustomerDto, file?: Express.Multer.File) {
     try {
       const user = await this.customerRepository.findOneBy({ id });
-  
+
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
@@ -163,15 +163,15 @@ export class CustomerService {
       if (file) {
         imageUrl = await this.s3Service.uploadFile(file);
       }
-  
+
       Object.assign(user, {
         ...updateUserDto,
         image: imageUrl,
-        updatedAt: new Date(),  
+        updatedAt: new Date(),
       });
-  
+
       const savedUser = await this.customerRepository.save(user);
-  
+
       return { message: 'User updated successfully', data: savedUser };
     } catch (error) {
       console.error(`Error updating user with ID ${id}:`, error);
@@ -182,34 +182,34 @@ export class CustomerService {
   async remove(id: string, customerId: any) {
     try {
       const user = await this.customerRepository.findOne({ where: { id } });
-  
+
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
-  
+
       if (user.deletedAt !== null) {
         throw new ConflictException('User has already been soft deleted');
       }
-  
+
       const result = await this.customerRepository.softDelete(id);
-  
+
       if (result.affected === 0) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
-  
+
       return { message: 'User soft deleted successfully' };
-  
+
     } catch (error) {
       console.error(`Error soft deleting user with ID ${id}:`, error);
-  
+
       if (error instanceof NotFoundException || error instanceof ConflictException) {
         throw error;
       }
-  
+
       throw new ForbiddenException('You do not have permission to delete customer');
     }
   }
-  
+
   async restore(id: string) {
     try {
       const result = await this.customerRepository.restore(id);

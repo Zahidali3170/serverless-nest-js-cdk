@@ -21,15 +21,13 @@ export class PermissionGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // Assuming user is attached to request
+    const user = request.user;
 
     if (!user) {
-      return false; // If user doesn't exist
+      return false;
     }
 
-    // Fetch permissions based on user's roles
     const userPermissions = await this.adminService.getPermissionsByUser(user.id);
-
     return permissions.every((permission) =>
       userPermissions.includes(permission),
     );
