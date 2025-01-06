@@ -39,6 +39,7 @@ export class RoleController {
   deleteRole(@Param('id') id: string, @Req() req) {
     return this.roleService.removeRole(id, req.user.role);
   }
+  
 
   @UseGuards(JwtAuthGuard, AllRolesGuard)
   @ApiOperation({ summary: 'Update a role by ID' })

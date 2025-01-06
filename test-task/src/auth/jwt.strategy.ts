@@ -24,15 +24,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any): Promise<User | Customer| Admin| { error: string }> {
     const { sub } = payload;
-    const user = await this.userRepository.findOne({ where: { id: sub } }); 
-    const customer = await this.customerRepository.findOne({ where: { id: sub } });
+    console.log("payload",{payload})
     const admin = await this.adminRepository.findOne({ where: { id: sub },relations: ['roles'] });
     if (admin) {
       return admin; 
     }
+
+    const customer = await this.customerRepository.findOne({ where: { id: sub } });
     if (customer) {
       return customer; 
     }
+
+    const user = await this.userRepository.findOne({ where: { id: sub } }); 
     if (!user) {
       throw new UnauthorizedException('Permission denied');
     }
